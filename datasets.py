@@ -1,23 +1,23 @@
 import pandas as pd, numpy as np, re 
 
 # Leitura dos datasets
+'''
 data = pd.read_csv('TrabalhoFinalAMA\datasets\data.csv')
 movies = pd.read_csv("TrabalhoFinalAMA\datasets\data.csv")
 data['names'] = data['Movie Name']
 
+
 filmes = pd.merge(data, movies, on='names')
 # Merge dos dois dataset, para pegar os filmes que estão nos dois.
 
-#filmes.to_csv("filmes.csv")
+filmes.to_csv("filmes.csv")
 # colocar o dataset filmes em um arquivo csv e salvar
+'''
 
 dataset_filmes_usado = pd.read_csv("filmes.csv")
 
 dataset_filmes_usado = dataset_filmes_usado[dataset_filmes_usado['Year of Release'] >= 2010]
 #Pegar filmes lançados a partir de 2010
-
-dataset_filmes = pd.read_csv("/content/filmes.csv")
-dataset_filmes_usado = dataset_filmes.copy()
 
 fatores_ipca = {2010: 2.03, 2011: 1.92,2012: 1.81,2013: 1.71,2014: 1.61,2015: 1.45,2016: 1.31, 2017: 1.23,2018: 1.19,2019: 1.14,2020: 1.09,2021: 1.00,2022: 0.94,2023: 0.90,2024: 0.86,2025: 1.00}
 # Fatores de Correção da inflação
