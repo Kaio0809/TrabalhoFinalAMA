@@ -1,14 +1,14 @@
 import pandas as pd, numpy as np, re 
 
 # Leitura dos datasets
-data = pd.read_csv('data.csv')
-movies = pd.read_csv("imdb_movies.csv")
+data = pd.read_csv('TrabalhoFinalAMA\datasets\data.csv')
+movies = pd.read_csv("TrabalhoFinalAMA\datasets\data.csv")
 data['names'] = data['Movie Name']
 
 filmes = pd.merge(data, movies, on='names')
 # Merge dos dois dataset, para pegar os filmes que estão nos dois.
 
-filmes.to_csv("filmes.csv")
+#filmes.to_csv("filmes.csv")
 # colocar o dataset filmes em um arquivo csv e salvar
 
 dataset_filmes_usado = pd.read_csv("filmes.csv")
@@ -23,21 +23,15 @@ fatores_ipca = {2010: 2.03, 2011: 1.92,2012: 1.81,2013: 1.71,2014: 1.61,2015: 1.
 # Fatores de Correção da inflação
 
 dataset_filmes_usado["fator_ipca"] = dataset_filmes_usado["Year of Release"].map(fatores_ipca)
-dataset_filmes_usado["receita_corrigida"] = (dataset_filmes_usado["revenue"] - dataset_filmes_usado["budget_x"]) / dataset_filmes_usado["fator_ipca"]
-# Alterar a receita calculando com o fator ipca para que os dados não sejam prejudicados pela inflação
+dataset_filmes_usado["lucro"] = (dataset_filmes_usado["revenue"] - dataset_filmes_usado["budget_x"]) / dataset_filmes_usado["fator_ipca"]
+dataset_filmes_usado["receita_corrigida"] = dataset_filmes_usado['revenue'] / dataset_filmes_usado['fator_ipca']
+
+# Alterar o lucro e a receita calculando com o fator ipca para que os dados não sejam prejudicados pela inflação
 
 dataset_filmes_usado = dataset_filmes_usado.dropna(subset=["revenue"])
 # Remove as tuplas que a coluna Revenue - (Receita) é nulo
 
 dataset_filmes_usado['diretor'] = dataset_filmes_usado['Director'].apply(lambda x: re.sub(r"[\[\]']", "", str(x)))
-dataset_filmes_usado = dataset_filmes_usado[dataset_filmes_usado['Year of Release'] >= 2010]
-
-fatores_ipca = {2010: 2.03,2011: 1.92,2012: 1.81,2013: 1.71,2014: 1.61,2015: 1.45,2016: 1.31, 2017: 1.23,2018: 1.19,2019: 1.14,2020: 1.09,2021: 1.00,2022: 0.94,2023: 0.90,2024: 0.86,2025: 1.00}
-
-dataset_filmes_usado["fator_ipca"] = dataset_filmes_usado["Year of Release"].map(fatores_ipca)
-dataset_filmes_usado["receita_corrigida"] = (dataset_filmes_usado["revenue"] - dataset_filmes_usado["budget_x"]) / dataset_filmes_usado["fator_ipca"]
-dataset_filmes_usado = dataset_filmes_usado.dropna(subset=["revenue"])
-
 dados = dataset_filmes_usado.copy()
 
 def tratar_crew(x):
@@ -115,20 +109,20 @@ filmes['mes'] = filmes['date_x'].dt.month
 filmes['mes_sin'] = np.sin(2 * np.pi * filmes['mes'] / 12)
 filmes['mes_cos'] = np.cos(2 * np.pi * filmes['mes'] / 12)
 
-q1 = filmes['receita_corrigida'].quantile(0.33)
-q2 = filmes['receita_corrigida'].quantile(0.66)
+q1 = filmes['lucro'].quantile(0.33)
+q2 = filmes['lucro'].quantile(0.66)
 
 bins = [-float('inf'), 0, q1, q2, float('inf')]
 labels = ['Prejuízo', 'Lucro baixo', 'Lucro médio', 'Lucro alto']
 
-filmes['categoria_lucro'] = pd.cut(filmes['receita_corrigida'], bins=bins, labels=labels)
+filmes['categoria_lucro'] = pd.cut(filmes['lucro'], bins=bins, labels=labels)
 
-filmes['log_lucro'] = filmes['receita_corrigida'].apply(lambda x: np.log(x))
+filmes['log_receita'] = filmes['receita_corrigida'].apply(lambda x: np.log(x))
 
 print(filmes.columns)
 dataset_filmes_usado = filmes.copy()
 dataset_filmes_usado.to_csv("filmes_final_completo.csv")
 
-dataset_final = dataset_filmes_usado[['Movie Name','Year of Release','mes_sin','mes_cos','Run Time in minutes','budget_x','orig_lang','media_elenco','media_direcao','mediana_elenco','mediana_direcao','Drama','Mystery','Action','Family','Documentary','Crime','Romance','War','Comedy','Fantasy','Adventure','Thriller','Science Fiction','Western','History','Horror','Animation','Music','TV Movie','receita_corrigida','categoria_lucro']]
+dataset_final = dataset_filmes_usado[['Movie Name','Year of Release','mes_sin','mes_cos','Run Time in minutes','budget_x','orig_lang','media_elenco','media_direcao','mediana_elenco','mediana_direcao','Drama','Mystery','Action','Family','Documentary','Crime','Romance','War','Comedy','Fantasy','Adventure','Thriller','Science Fiction','Western','History','Horror','Animation','Music','TV Movie','receita_corrigida','log_receita','lucro','categoria_lucro']]
 
 dataset_final.to_csv("dataset_filmes.csv")
