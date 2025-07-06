@@ -1,18 +1,19 @@
 import pandas as pd, numpy as np, re 
 
-# Leitura dos datasets
 '''
-data = pd.read_csv('TrabalhoFinalAMA\datasets\data.csv')
-movies = pd.read_csv("TrabalhoFinalAMA\datasets\data.csv")
-data['names'] = data['Movie Name']
+Criação do Dataset Usasdo
+'''
 
+# Leitura dos datasets
+#data = pd.read_csv('TrabalhoFinalAMA\datasets\data.csv')
+#movies = pd.read_csv("TrabalhoFinalAMA\datasets\data.csv")
+#data['names'] = data['Movie Name']
 
-filmes = pd.merge(data, movies, on='names')
+#filmes = pd.merge(data, movies, on='names')
 # Merge dos dois dataset, para pegar os filmes que estão nos dois.
 
-filmes.to_csv("filmes.csv")
+#filmes.to_csv("filmes.csv")
 # colocar o dataset filmes em um arquivo csv e salvar
-'''
 
 dataset_filmes_usado = pd.read_csv("filmes.csv")
 
@@ -119,10 +120,40 @@ filmes['categoria_lucro'] = pd.cut(filmes['lucro'], bins=bins, labels=labels)
 
 filmes['log_receita'] = filmes['receita_corrigida'].apply(lambda x: np.log(x))
 
-print(filmes.columns)
 dataset_filmes_usado = filmes.copy()
-dataset_filmes_usado.to_csv("filmes_final_completo.csv")
+dataset_filmes_usado.to_csv("filmes_final_completo.csv", index=False)
 
-dataset_final = dataset_filmes_usado[['Movie Name','Year of Release','mes_sin','mes_cos','Run Time in minutes','budget_x','orig_lang','media_elenco','media_direcao','mediana_elenco','mediana_direcao','Drama','Mystery','Action','Family','Documentary','Crime','Romance','War','Comedy','Fantasy','Adventure','Thriller','Science Fiction','Western','History','Horror','Animation','Music','TV Movie','receita_corrigida','log_receita','lucro','categoria_lucro']]
+dataset_final = dataset_filmes_usado[['Year of Release','mes_sin','mes_cos','Run Time in minutes','budget_x','media_elenco','media_direcao','mediana_elenco','mediana_direcao','Drama','Mystery','Action','Family','Documentary','Crime','Romance','War','Comedy','Fantasy','Adventure','Thriller','Science Fiction','Western','History','Horror','Animation','Music','TV Movie','receita_corrigida','log_receita','lucro','categoria_lucro']]
 
-dataset_final.to_csv("dataset_filmes.csv")
+
+dataset_final = dataset_final.rename(columns={
+                                              'Year of Release': 'ano_lancamento',
+                                              'mes_sin': 'mes_seno',
+                                              'Run Time in minutes': 'duracao',
+                                              'budget_x': 'orcamento'
+                                              })
+dataset_final.to_csv("dataset_filmes.csv", index=False)
+
+
+''' ---Tratamento de Dados--- '''
+
+def tratar_dados(dataset):
+    dataset_tratado = dataset.copy()
+
+    # Colunas que estar zerada significa ausencia ou inconsistencia de dados.
+    colunas = ['duracao','orcamento','media_elenco','media_direcao','mediana_elenco','mediana_direcao','receita_corrigida','log_receita']
+
+    for coluna in colunas:
+        dataset_tratado = dataset_tratado[dataset_tratado[coluna] != 0]
+    
+    # Retirar Tuplas com Valores Nulos
+    dataset_tratado = dataset_tratado.dropna()
+    return dataset_tratado
+
+
+a = pd.read_csv('dataset_filmes.csv', sep=',')
+
+# Chama a função para tratamento de Dados
+b = tratar_dados(a)
+
+print(len(b), b)
