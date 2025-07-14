@@ -123,16 +123,26 @@ filmes['log_receita'] = filmes['receita_corrigida'].apply(lambda x: np.log(x))
 dataset_filmes_usado = filmes.copy()
 dataset_filmes_usado.to_csv("filmes_final_completo.csv", index=False)
 
-dataset_final = dataset_filmes_usado[['Year of Release','mes_sin','mes_cos','Run Time in minutes','budget_x','media_elenco','media_direcao','mediana_elenco','mediana_direcao','Drama','Mystery','Action','Family','Documentary','Crime','Romance','War','Comedy','Fantasy','Adventure','Thriller','Science Fiction','Western','History','Horror','Animation','Music','TV Movie','receita_corrigida','log_receita','lucro','categoria_lucro']]
+dataset_final_c = dataset_filmes_usado[['Year of Release','mes_sin','mes_cos','Run Time in minutes','budget_x','media_elenco','media_direcao','mediana_elenco','mediana_direcao','Drama','Mystery','Action','Family','Documentary','Crime','Romance','War','Comedy','Fantasy','Adventure','Thriller','Science Fiction','Western','History','Horror','Animation','Music','TV Movie','categoria_lucro']]
 
+dataset_final_r = dataset_filmes_usado[['Year of Release','mes_sin','mes_cos','Run Time in minutes','budget_x','media_elenco','media_direcao','mediana_elenco','mediana_direcao','Drama','Mystery','Action','Family','Documentary','Crime','Romance','War','Comedy','Fantasy','Adventure','Thriller','Science Fiction','Western','History','Horror','Animation','Music','TV Movie','log_receita']]
 
-dataset_final = dataset_final.rename(columns={
+dataset_final_c = dataset_final_c.rename(columns={
                                               'Year of Release': 'ano_lancamento',
                                               'mes_sin': 'mes_seno',
                                               'Run Time in minutes': 'duracao',
                                               'budget_x': 'orcamento'
                                               })
-dataset_final.to_csv("dataset_filmes.csv", index=False)
+
+dataset_final_r = dataset_final_r.rename(columns={
+                                              'Year of Release': 'ano_lancamento',
+                                              'mes_sin': 'mes_seno',
+                                              'Run Time in minutes': 'duracao',
+                                              'budget_x': 'orcamento'
+                                              })
+
+dataset_final_c.to_csv("dataset_filmes_class.csv", index=False)
+dataset_final_r.to_csv("dataset_filmes_reg.csv", index=False)
 
 
 ''' ---Tratamento de Dados--- '''
@@ -141,7 +151,7 @@ def tratar_dados(dataset):
     dataset_tratado = dataset.copy()
 
     # Colunas que estar zerada significa ausencia ou inconsistencia de dados.
-    colunas = ['duracao','orcamento','media_elenco','media_direcao','mediana_elenco','mediana_direcao','receita_corrigida','log_receita']
+    colunas = ['duracao','orcamento','media_elenco','media_direcao','mediana_elenco','mediana_direcao']
 
     for coluna in colunas:
         dataset_tratado = dataset_tratado[dataset_tratado[coluna] != 0]
