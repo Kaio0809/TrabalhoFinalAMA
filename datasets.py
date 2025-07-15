@@ -25,12 +25,9 @@ fatores_ipca = {2010: 2.03, 2011: 1.92,2012: 1.81,2013: 1.71,2014: 1.61,2015: 1.
 
 dataset_filmes_usado["fator_ipca"] = dataset_filmes_usado["Year of Release"].map(fatores_ipca)
 dataset_filmes_usado["lucro"] = (dataset_filmes_usado["revenue"] - dataset_filmes_usado["budget_x"]) / dataset_filmes_usado["fator_ipca"]
-dataset_filmes_usado["receita_corrigida"] = dataset_filmes_usado['revenue'] / dataset_filmes_usado['fator_ipca']
-
-# Alterar o lucro e a receita calculando com o fator ipca para que os dados não sejam prejudicados pela inflação
+dataset_filmes_usado["budget_x"] = dataset_filmes_usado["budget_x"] / dataset_filmes_usado["fator_ipca"]
 
 dataset_filmes_usado = dataset_filmes_usado.dropna(subset=["revenue"])
-# Remove as tuplas que a coluna Revenue - (Receita) é nulo
 
 dataset_filmes_usado['diretor'] = dataset_filmes_usado['Director'].apply(lambda x: re.sub(r"[\[\]']", "", str(x)))
 dados = dataset_filmes_usado.copy()
@@ -110,22 +107,18 @@ filmes['mes'] = filmes['date_x'].dt.month
 filmes['mes_sin'] = np.sin(2 * np.pi * filmes['mes'] / 12)
 filmes['mes_cos'] = np.cos(2 * np.pi * filmes['mes'] / 12)
 
-q1 = filmes['lucro'].quantile(0.33)
+q1 = filmes['lucro'].quantile(0.33) 
 q2 = filmes['lucro'].quantile(0.66)
 
-bins = [-float('inf'), 0, q1, q2, float('inf')]
-labels = ['Prejuízo', 'Lucro baixo', 'Lucro médio', 'Lucro alto']
+bins = [-float('inf'), 0, q2, float('inf')]
+labels = ['Prejuízo', 'Lucro baixo', 'Lucro alto']
 
-filmes['categoria_lucro'] = pd.cut(filmes['lucro'], bins=bins, labels=labels)
-
-filmes['log_receita'] = filmes['receita_corrigida'].apply(lambda x: np.log(x))
+filmes['categoria_lucro'] = pd.cut(filmes['lucro'],bins=bins,labels=labels)
 
 dataset_filmes_usado = filmes.copy()
 dataset_filmes_usado.to_csv("filmes_final_completo.csv", index=False)
 
 dataset_final_c = dataset_filmes_usado[['Year of Release','mes_sin','mes_cos','Run Time in minutes','budget_x','media_elenco','media_direcao','mediana_elenco','mediana_direcao','Drama','Mystery','Action','Family','Documentary','Crime','Romance','War','Comedy','Fantasy','Adventure','Thriller','Science Fiction','Western','History','Horror','Animation','Music','TV Movie','categoria_lucro']]
-
-dataset_final_r = dataset_filmes_usado[['Year of Release','mes_sin','mes_cos','Run Time in minutes','budget_x','media_elenco','media_direcao','mediana_elenco','mediana_direcao','Drama','Mystery','Action','Family','Documentary','Crime','Romance','War','Comedy','Fantasy','Adventure','Thriller','Science Fiction','Western','History','Horror','Animation','Music','TV Movie','log_receita']]
 
 dataset_final_c = dataset_final_c.rename(columns={
                                               'Year of Release': 'ano_lancamento',
@@ -134,15 +127,7 @@ dataset_final_c = dataset_final_c.rename(columns={
                                               'budget_x': 'orcamento'
                                               })
 
-dataset_final_r = dataset_final_r.rename(columns={
-                                              'Year of Release': 'ano_lancamento',
-                                              'mes_sin': 'mes_seno',
-                                              'Run Time in minutes': 'duracao',
-                                              'budget_x': 'orcamento'
-                                              })
 
-dataset_final_c.to_csv("dataset_filmes_class.csv", index=False)
-dataset_final_r.to_csv("dataset_filmes_reg.csv", index=False)
 
 
 ''' ---Tratamento de Dados--- '''
@@ -161,9 +146,9 @@ def tratar_dados(dataset):
     return dataset_tratado
 
 
-a = pd.read_csv('dataset_filmes.csv', sep=',')
-
+df = dataset_final_c.copy()
 # Chama a função para tratamento de Dados
-b = tratar_dados(a)
+df_tratado = tratar_dados(df)
 
-print(len(b), b)
+print(len(df_tratado), df_tratado)
+df_tratado.to_csv("dataset_filmes_class.csv", index=False)
