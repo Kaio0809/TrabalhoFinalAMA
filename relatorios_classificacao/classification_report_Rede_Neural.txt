@@ -1,0 +1,11 @@
+Relatório do modelo: Rede_Neural
+
+              precision    recall  f1-score   support
+
+  Lucro alto       0.81      0.65      0.72       193
+ Lucro baixo       0.59      0.50      0.54       226
+    Prejuízo       0.40      0.59      0.48       147
+
+    accuracy                           0.58       566
+   macro avg       0.60      0.58      0.58       566
+weighted avg       0.61      0.58      0.59       566

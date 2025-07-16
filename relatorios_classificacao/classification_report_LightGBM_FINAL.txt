@@ -1,0 +1,11 @@
+Relatório do modelo: LightGBM_FINAL
+
+              precision    recall  f1-score   support
+
+  Lucro alto       0.77      0.74      0.76       193
+ Lucro baixo       0.62      0.71      0.66       226
+    Prejuízo       0.48      0.41      0.44       147
+
+    accuracy                           0.64       566
+   macro avg       0.63      0.62      0.62       566
+weighted avg       0.64      0.64      0.64       566
